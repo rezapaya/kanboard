@@ -29,6 +29,20 @@ class Action extends Base
     }
 
     /**
+     * Return the name and description of available actions
+     *
+     * @access public
+     * @return array
+     */
+    public function getAvailableEvents()
+    {
+        return array(
+            Task::EVENT_MOVE_COLUMN => t('Move a task to another column'),
+            Task::EVENT_MOVE_POSITION => t('Move a task to another position in the same column'),
+        );
+    }
+
+    /**
      * Return actions and parameters for a given project
      *
      * @access public
@@ -62,6 +76,40 @@ class Action extends Base
         return $actions;
     }
 
+    /**
+     * Fetch an action
+     *
+     * @access public
+     * @param  integer $action_id  Action id
+     * @return array               Action data
+     */
+    public function getById($action_id)
+    {
+        $action = $this->db->table(self::TABLE)->eq('id', $action_id)->findOne();
+        $action['params'] = $this->db->table(self::TABLE_PARAMS)->eq('action_id', $action_id)->findAll();
+
+        return $action;
+    }
+
+    /**
+     * Remove an action
+     *
+     * @access public
+     * @param  integer $action_id  Action id
+     * @return bool                Success or not
+     */
+    public function remove($action_id)
+    {
+        return $this->db->table(self::TABLE)->eq('id', $action_id)->remove();
+    }
+
+    /**
+     * Create an action
+     *
+     * @access public
+     * @param  array   $values  Required parameters to save an action
+     * @return bool             Success or not
+     */
     public function create(array $values)
     {
         $this->db->startTransaction();
@@ -107,11 +155,7 @@ class Action extends Base
     {
         foreach ($this->getAll() as $action) {
 
-            require_once __DIR__.'/../actions/'.$action['action_name'].'.php';
-
-            $actionClassName = '\Action\\'.$action['action_name'];
-            $listener = new $actionClassName($action['project_id']);
-            $listener->task = new Task($this->db, $this->event);
+            $listener = $this->load($action['action_name'], $action['project_id']);
 
             foreach ($action['params'] as $param) {
                 $listener->setParam($param['name'], $param['value']);
@@ -119,5 +163,57 @@ class Action extends Base
 
             $this->event->attach($action['event_name'], $listener);
         }
+    }
+
+    /**
+     * Load an action
+     *
+     * @access public
+     * @param  string  $name        Action class name
+     * @param  integer $project_id  Project id
+     * @return mixed                Action Instance
+     * @throw  LogicException
+     */
+    public function load($name, $project_id)
+    {
+        switch ($name) {
+            case 'TaskClose':
+                require_once __DIR__.'/../actions/task_close.php';
+                $className = '\Action\TaskClose';
+                return new $className($project_id, new Task($this->db, $this->event));
+            case 'TaskAssignCurrentUser':
+                require_once __DIR__.'/../actions/task_assign_current_user.php';
+                $className = '\Action\TaskAssignCurrentUser';
+                return new $className($project_id, new Task($this->db, $this->event), new Acl($this->db, $this->event));
+            case 'TaskAssignSpecificUser':
+                require_once __DIR__.'/../actions/task_assign_specific_user.php';
+                $className = '\Action\TaskAssignSpecificUser';
+                return new $className($project_id, new Task($this->db, $this->event));
+            default:
+                throw new \LogicException('Action not found: '.$name);
+        }
+    }
+
+    /**
+     * Validate action creation
+     *
+     * @access public
+     * @param  array   $values           Required parameters to save an action
+     * @return array   $valid, $errors   [0] = Success or not, [1] = List of errors
+     */
+    public function validateCreation(array $values)
+    {
+        $v = new Validator($values, array(
+            new Validators\Required('project_id', t('The project id is required')),
+            new Validators\Integer('project_id', t('This value must be an integer')),
+            new Validators\Required('event_name', t('This value is required')),
+            new Validators\Required('action_name', t('This value is required')),
+            new Validators\Required('params', t('This value is required')),
+        ));
+
+        return array(
+            $v->execute(),
+            $v->getErrors()
+        );
     }
 }

@@ -18,9 +18,10 @@ class Board extends Base
         $this->db->startTransaction();
 
         $results = array();
+        $taskModel = new Task($this->db, $this->event);
 
         foreach ($values as $value) {
-            $results[] = $this->task->move(
+            $results[] = $taskModel->move(
                 $value['task_id'],
                 $value['column_id'],
                 $value['position']

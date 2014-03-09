@@ -2,14 +2,20 @@
 
 namespace Action;
 
-require_once __DIR__.'/Base.php';
+require_once __DIR__.'/base.php';
 
 class TaskClose extends Base
 {
+    public function __construct($project_id, \Model\Task $task)
+    {
+        parent::__construct($project_id);
+        $this->task = $task;
+    }
+
     public function getActionRequiredParameters()
     {
         return array(
-            'column_id' => t('Column'),
+            'column_id' => t('Destination column'),
         );
     }
 

@@ -17,9 +17,6 @@ class Project extends Base
     const ACTIVE = 1;
     const INACTIVE = 0;
 
-    const EVENT_CREATE = 'project.create';
-    const EVENT_REMOVE = 'project.remove';
-
     // Get a list of people that can by assigned for tasks
     public function getUsersList($project_id)
     {

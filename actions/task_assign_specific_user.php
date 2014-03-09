@@ -2,15 +2,21 @@
 
 namespace Action;
 
-require_once __DIR__.'/Base.php';
+require_once __DIR__.'/base.php';
 
-class TaskAssignCurrentUser extends Base
+class TaskAssignSpecificUser extends Base
 {
+    public function __construct($project_id, \Model\Task $task)
+    {
+        parent::__construct($project_id);
+        $this->task = $task;
+    }
+
     public function getActionRequiredParameters()
     {
         return array(
-            'column_id' => t('Column'),
-            'user_id' => t('User'),
+            'column_id' => t('Destination column'),
+            'user_id' => t('User to assign'),
         );
     }
 
@@ -29,7 +35,7 @@ class TaskAssignCurrentUser extends Base
             if ($data['column_id'] == $this->getParam('column_id')) {
                 $this->task->update(array(
                     'id' => $data['task_id'],
-                    'owner_id' => $this->getModel('acl')->getUserId(),
+                    'owner_id' => $this->getParam('user_id'),
                 ));
             }
         }
