@@ -2,6 +2,8 @@
 
 namespace Model;
 
+require_once __DIR__.'/Base.php';
+
 use \SimpleValidator\Validator;
 use \SimpleValidator\Validators;
 
@@ -12,14 +14,16 @@ class Project extends Base
     const ACTIVE = 1;
     const INACTIVE = 0;
 
+    const EVENT_CREATE = 'project.create';
+    const EVENT_REMOVE = 'project.remove';
+
     // Get a list of people that can by assigned for tasks
     public function getUsersList($project_id)
     {
         $allowed_users = $this->getAllowedUsers($project_id);
 
         if (empty($allowed_users)) {
-            $userModel = new User;
-            $allowed_users = $userModel->getList();
+            $allowed_users = $this->user->getList();
         }
 
         return array(t('Unassigned')) + $allowed_users;
@@ -30,7 +34,7 @@ class Project extends Base
     {
         return $this->db
             ->table(self::TABLE_USERS)
-            ->join(\Model\User::TABLE, 'id', 'user_id')
+            ->join(User::TABLE, 'id', 'user_id')
             ->eq('project_id', $project_id)
             ->asc('username')
             ->listing('user_id', 'username');
@@ -90,7 +94,7 @@ class Project extends Base
 
         // Check if user has admin rights
         $nb_users = $this->db
-                    ->table(\Model\User::TABLE)
+                    ->table(User::TABLE)
                     ->eq('id', $user_id)
                     ->eq('is_admin', 1)
                     ->count();
@@ -133,27 +137,23 @@ class Project extends Base
                         ->asc('name')
                         ->findAll();
 
-        $taskModel = new \Model\Task;
-        $boardModel = new \Model\Board;
-        $aclModel = new \Model\Acl;
-
         foreach ($projects as $pkey => &$project) {
 
-            if ($check_permissions && ! $this->isUserAllowed($project['id'], $aclModel->getUserId())) {
+            if ($check_permissions && ! $this->isUserAllowed($project['id'], $this->acl->getUserId())) {
                 unset($projects[$pkey]);
             }
             else {
 
-                $columns = $boardModel->getcolumns($project['id']);
+                $columns = $this->board->getcolumns($project['id']);
                 $project['nb_active_tasks'] = 0;
 
                 foreach ($columns as &$column) {
-                    $column['nb_active_tasks'] = $taskModel->countByColumnId($project['id'], $column['id']);
+                    $column['nb_active_tasks'] = $this->task->countByColumnId($project['id'], $column['id']);
                     $project['nb_active_tasks'] += $column['nb_active_tasks'];
                 }
 
                 $project['columns'] = $columns;
-                $project['nb_tasks'] = $taskModel->countByProjectId($project['id']);
+                $project['nb_tasks'] = $this->task->countByProjectId($project['id']);
                 $project['nb_inactive_tasks'] = $project['nb_tasks'] - $project['nb_active_tasks'];
             }
         }
@@ -218,8 +218,7 @@ class Project extends Base
 
         $project_id = $this->db->getConnection()->getLastId();
 
-        $boardModel = new \Model\Board;
-        $boardModel->create($project_id, array(
+        $this->board->create($project_id, array(
             t('Backlog'),
             t('Ready'),
             t('Work in progress'),

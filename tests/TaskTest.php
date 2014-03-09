@@ -1,20 +1,15 @@
 <?php
 
-require_once __DIR__.'/../models/base.php';
-require_once __DIR__.'/../models/task.php';
+require_once __DIR__.'/base.php';
 
 use Model\Task;
+use Model\Comment;
 
-class TaskTest extends PHPUnit_Framework_TestCase
+class TaskTest extends Base
 {
-    public function setUp()
-    {
-        defined('DB_FILENAME') or define('DB_FILENAME', ':memory:');
-    }
-
     public function testDateFormat()
     {
-        $t = new Task;
+        $t = new \Model\Task($this->db, $this->event);
 
         $this->assertEquals('2014-03-05', date('Y-m-d', $t->getTimestampFromDate('05/03/2014', 'd/m/Y')));
         $this->assertEquals('2014-03-05', date('Y-m-d', $t->getTimestampFromDate('03/05/2014', 'm/d/Y')));

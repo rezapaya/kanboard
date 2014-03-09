@@ -2,6 +2,8 @@
 
 namespace Model;
 
+require_once __DIR__.'/Base.php';
+
 class Acl extends Base
 {
     // Controllers and actions allowed from outside

@@ -2,6 +2,8 @@
 
 namespace Model;
 
+require_once __DIR__.'/Base.php';
+
 use \SimpleValidator\Validator;
 use \SimpleValidator\Validators;
 
@@ -14,11 +16,10 @@ class Board extends Base
     {
         $this->db->startTransaction();
 
-        $taskModel = new \Model\Task;
         $results = array();
 
         foreach ($values as $value) {
-            $results[] = $taskModel->move(
+            $results[] = $this->task->move(
                 $value['task_id'],
                 $value['column_id'],
                 $value['position']
@@ -75,14 +76,12 @@ class Board extends Base
     // Get columns and tasks for each column
     public function get($project_id)
     {
-        $taskModel = new \Model\Task;
-
         $this->db->startTransaction();
 
         $columns = $this->getColumns($project_id);
 
         foreach ($columns as &$column) {
-            $column['tasks'] = $taskModel->getAllByColumnId($project_id, $column['id'], array(1));
+            $column['tasks'] = $this->task->getAllByColumnId($project_id, $column['id'], array(1));
         }
 
         $this->db->closeTransaction();

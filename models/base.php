@@ -13,45 +13,22 @@ require __DIR__.'/../vendor/SimpleValidator/Validators/Equals.php';
 require __DIR__.'/../vendor/SimpleValidator/Validators/AlphaNumeric.php';
 require __DIR__.'/../vendor/SimpleValidator/Validators/GreaterThan.php';
 require __DIR__.'/../vendor/SimpleValidator/Validators/Date.php';
-require __DIR__.'/../vendor/PicoDb/Database.php';
-require __DIR__.'/schema.php';
 
 abstract class Base
 {
-    const APP_VERSION = 'master';
-    const DB_VERSION  = 9;
-
-    private static $dbInstance = null;
     protected $db;
+    protected $event;
 
-    public function __construct()
+    public function __construct(\PicoDb\Database $db, \Core\Event $event)
     {
-        if (self::$dbInstance === null) {
-            self::$dbInstance = $this->getDatabaseInstance();
-        }
-
-        $this->db = self::$dbInstance;
-    }
-
-    public function getDatabaseInstance()
-    {
-        $db = new \PicoDb\Database(array(
-            'driver' => 'sqlite',
-            'filename' => DB_FILENAME
-        ));
-
-        if ($db->schema()->check(self::DB_VERSION)) {
-            return $db;
-        }
-        else {
-            die('Unable to migrate database schema!');
-        }
+        $this->db = $db;
+        $this->event = $event;
     }
 
     // Generate a random token from /dev/urandom or with uniqid()
     public static function generateToken()
     {
-        if (ini_get('open_basedir') === '') {
+        if (ini_get('open_basedir') === '' && strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
             $token = file_get_contents('/dev/urandom', false, null, 0, 30);
         }
         else {

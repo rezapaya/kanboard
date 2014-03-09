@@ -2,12 +2,16 @@
 
 namespace Model;
 
+require_once __DIR__.'/Base.php';
+
 use \SimpleValidator\Validator;
 use \SimpleValidator\Validators;
 
 class Task extends Base
 {
     const TABLE = 'tasks';
+    const EVENT_MOVE_COLUMN = 'task.move.column';
+    const EVENT_MOVE_POSITION = 'task.move.postion';
 
     public function getColors()
     {
@@ -107,10 +111,8 @@ class Task extends Base
                     ->asc('position')
                     ->findAll();
 
-        $commentModel = new Comment;
-
         foreach ($tasks as &$task) {
-            $task['nb_comments'] = $commentModel->count($task['id']);
+            $task['nb_comments'] = $this->comment->count($task['id']);
         }
 
         return $tasks;
@@ -191,10 +193,31 @@ class Task extends Base
     // Move a task to another column or to another position
     public function move($task_id, $column_id, $position)
     {
-        return (bool) $this->db
+        $task = $this->getById($task_id);
+
+        if ($task['column_id'] != $column_id) {
+            $event_name = self::EVENT_MOVE_COLUMN;
+        }
+        else if ($task['position'] != $position) {
+            $event_name = self::EVENT_MOVE_POSITION;
+        }
+
+        if (isset($event_name)) {
+
+            $this->event->trigger($event_name, array(
+                'project_id' => $task['project_id'],
+                'task_id' => $task_id,
+                'column_id' => $column_id,
+                'position' => $position,
+            ));
+
+            return (bool) $this->db
                     ->table(self::TABLE)
                     ->eq('id', $task_id)
                     ->update(array('column_id' => $column_id, 'position' => $position));
+        }
+
+        return false;
     }
 
     public function validateCreation(array $values)
