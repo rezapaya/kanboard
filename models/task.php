@@ -2,7 +2,8 @@
 
 namespace Model;
 
-require_once __DIR__.'/Base.php';
+require_once __DIR__.'/base.php';
+require_once __DIR__.'/comment.php';
 
 use \SimpleValidator\Validator;
 use \SimpleValidator\Validators;
@@ -46,13 +47,13 @@ class Task extends Base
                         self::TABLE.'.position',
                         self::TABLE.'.is_active',
                         self::TABLE.'.score',
-                        \Model\Project::TABLE.'.name AS project_name',
-                        \Model\Board::TABLE.'.title AS column_title',
-                        \Model\User::TABLE.'.username'
+                        Project::TABLE.'.name AS project_name',
+                        Board::TABLE.'.title AS column_title',
+                        User::TABLE.'.username'
                     )
-                    ->join(\Model\Project::TABLE, 'id', 'project_id')
-                    ->join(\Model\Board::TABLE, 'id', 'column_id')
-                    ->join(\Model\User::TABLE, 'id', 'owner_id')
+                    ->join(Project::TABLE, 'id', 'project_id')
+                    ->join(Board::TABLE, 'id', 'column_id')
+                    ->join(User::TABLE, 'id', 'owner_id')
                     ->eq(self::TABLE.'.id', $task_id)
                     ->findOne();
         }
@@ -79,11 +80,11 @@ class Task extends Base
                 self::TABLE.'.position',
                 self::TABLE.'.is_active',
                 self::TABLE.'.score',
-                \Model\Board::TABLE.'.title AS column_title',
-                \Model\User::TABLE.'.username'
+                Board::TABLE.'.title AS column_title',
+                User::TABLE.'.username'
             )
-            ->join(\Model\Board::TABLE, 'id', 'column_id')
-            ->join(\Model\User::TABLE, 'id', 'owner_id')
+            ->join(Board::TABLE, 'id', 'column_id')
+            ->join(User::TABLE, 'id', 'owner_id')
             ->eq(self::TABLE.'.project_id', $project_id)
             ->in('is_active', $status)
             ->desc('date_completed')
@@ -111,8 +112,10 @@ class Task extends Base
                     ->asc('position')
                     ->findAll();
 
+        $commentModel = new Comment($this->db, $this->event);
+
         foreach ($tasks as &$task) {
-            $task['nb_comments'] = $this->comment->count($task['id']);
+            $task['nb_comments'] = $commentModel->count($task['id']);
         }
 
         return $tasks;

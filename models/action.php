@@ -2,7 +2,8 @@
 
 namespace Model;
 
-require_once __DIR__.'/Base.php';
+require_once __DIR__.'/base.php';
+require_once __DIR__.'/task.php';
 
 use \SimpleValidator\Validator;
 use \SimpleValidator\Validators;
@@ -110,7 +111,7 @@ class Action extends Base
 
             $actionClassName = '\Action\\'.$action['action_name'];
             $listener = new $actionClassName($action['project_id']);
-            $listener->task = $this->task;
+            $listener->task = new Task($this->db, $this->event);
 
             foreach ($action['params'] as $param) {
                 $listener->setParam($param['name'], $param['value']);

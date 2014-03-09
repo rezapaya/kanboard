@@ -57,45 +57,22 @@ $registry->comment = function() use ($registry) {
 
 $registry->task = function() use ($registry) {
     require_once __DIR__.'/models/task.php';
-
-    $instance = new \Model\Task($registry->shared('db'), $registry->shared('event'));
-    $instance->comment = $registry->comment;
-
-    return $instance;
+    return new \Model\Task($registry->shared('db'), $registry->shared('event'));
 };
 
 $registry->board = function() use ($registry) {
     require_once __DIR__.'/models/board.php';
-
-    $instance = new \Model\Board($registry->shared('db'), $registry->shared('event'));
-    $instance->task = $registry->task;
-
-    return $instance;
+    return new \Model\Board($registry->shared('db'), $registry->shared('event'));
 };
 
 $registry->project = function() use ($registry) {
     require_once __DIR__.'/models/project.php';
-
-    $instance = new \Model\Project($registry->shared('db'), $registry->shared('event'));
-    $instance->task = $registry->task;
-    $instance->board = $registry->board;
-    $instance->acl = $registry->acl;
-    $instance->user = $registry->user;
-
-    return $instance;
+    return new \Model\Project($registry->shared('db'), $registry->shared('event'));
 };
 
 $registry->action = function() use ($registry) {
     require_once __DIR__.'/models/action.php';
-
-    $instance = new \Model\Action($registry->shared('db'), $registry->shared('event'));
-    $instance->task = $registry->task;
-    $instance->board = $registry->board;
-    $instance->acl = $registry->acl;
-    $instance->user = $registry->user;
-    $instance->project = $registry->project;
-
-    return $instance;
+    return new \Model\Action($registry->shared('db'), $registry->shared('event'));
 };
 
 if (file_exists('config.php')) require 'config.php';

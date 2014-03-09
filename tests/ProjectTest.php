@@ -13,7 +13,6 @@ class ProjectTest extends Base
     public function testCreation()
     {
         $p = new Project($this->db, $this->event);
-        $p->board = new Board($this->db, $this->event);
 
         $this->assertEquals(1, $p->create(array('name' => 'UnitTest')));
         $this->assertNotEmpty($p->getById(1));
@@ -34,9 +33,8 @@ class ProjectTest extends Base
     public function testAllowUser()
     {
         $p = new Project($this->db, $this->event);
-        $p->board = new Board($this->db, $this->event);
-        $p->user = new User($this->db, $this->event);
-        $p->user->create(array('username' => 'unittest', 'password' => 'unittest'));
+        $user = new User($this->db, $this->event);
+        $user->create(array('username' => 'unittest', 'password' => 'unittest'));
 
         // We create a project
         $this->assertEquals(1, $p->create(array('name' => 'UnitTest')));
@@ -61,9 +59,9 @@ class ProjectTest extends Base
     public function testRevokeUser()
     {
         $p = new Project($this->db, $this->event);
-        $p->board = new Board($this->db, $this->event);
-        $p->user = new User($this->db, $this->event);
-        $p->user->create(array('username' => 'unittest', 'password' => 'unittest'));
+
+        $user = new User($this->db, $this->event);
+        $user->create(array('username' => 'unittest', 'password' => 'unittest'));
 
         // We create a project
         $this->assertEquals(1, $p->create(array('name' => 'UnitTest')));
@@ -116,10 +114,9 @@ class ProjectTest extends Base
     public function testUsersList()
     {
         $p = new Project($this->db, $this->event);
-        $p->user = new User($this->db, $this->event);
-        $p->board = new Board($this->db, $this->event);
-        $p->user = new User($this->db, $this->event);
-        $p->user->create(array('username' => 'unittest', 'password' => 'unittest'));
+
+        $user = new User($this->db, $this->event);
+        $user->create(array('username' => 'unittest', 'password' => 'unittest'));
 
         // We create project
         $this->assertEquals(1, $p->create(array('name' => 'UnitTest')));

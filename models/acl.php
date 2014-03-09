@@ -2,7 +2,7 @@
 
 namespace Model;
 
-require_once __DIR__.'/Base.php';
+require_once __DIR__.'/base.php';
 
 class Acl extends Base
 {

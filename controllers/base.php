@@ -13,6 +13,7 @@ abstract class Base
         $this->project = $registry->project;
         $this->task = $registry->task;
         $this->user = $registry->user;
+        $this->comment = $registry->comment;
     }
 
     public function beforeAction($controller, $action)

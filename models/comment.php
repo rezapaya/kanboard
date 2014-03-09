@@ -2,7 +2,7 @@
 
 namespace Model;
 
-require_once __DIR__.'/Base.php';
+require_once __DIR__.'/base.php';
 
 use \SimpleValidator\Validator;
 use \SimpleValidator\Validators;
@@ -19,9 +19,9 @@ class Comment extends Base
                 self::TABLE.'.id',
                 self::TABLE.'.date',
                 self::TABLE.'.comment',
-                \Model\User::TABLE.'.username'
+                User::TABLE.'.username'
             )
-            ->join(\Model\User::TABLE, 'id', 'user_id')
+            ->join(User::TABLE, 'id', 'user_id')
             ->orderBy(self::TABLE.'.date', 'ASC')
             ->eq(self::TABLE.'.task_id', $task_id)
             ->findAll();

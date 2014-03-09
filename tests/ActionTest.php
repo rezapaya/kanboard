@@ -14,7 +14,6 @@ class ActionTest extends Base
         $action = new Action($this->db, $this->event);
         $board = new Board($this->db, $this->event);
         $project = new Project($this->db, $this->event);
-        $project->board = $board;
 
         $this->assertEquals(1, $project->create(array('name' => 'unit_test')));
 
@@ -52,7 +51,6 @@ class ActionTest extends Base
         $board = new Board($this->db, $this->event);
 
         $project = new Project($this->db, $this->event);
-        $project->board = $board;
 
         $action = new Action($this->db, $this->event);
         $action->project = $project;

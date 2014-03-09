@@ -2,7 +2,8 @@
 
 namespace Model;
 
-require_once __DIR__.'/Base.php';
+require_once __DIR__.'/base.php';
+require_once __DIR__.'/task.php';
 
 use \SimpleValidator\Validator;
 use \SimpleValidator\Validators;
@@ -79,9 +80,10 @@ class Board extends Base
         $this->db->startTransaction();
 
         $columns = $this->getColumns($project_id);
+        $taskModel = new Task($this->db, $this->event);
 
         foreach ($columns as &$column) {
-            $column['tasks'] = $this->task->getAllByColumnId($project_id, $column['id'], array(1));
+            $column['tasks'] = $taskModel->getAllByColumnId($project_id, $column['id'], array(1));
         }
 
         $this->db->closeTransaction();
