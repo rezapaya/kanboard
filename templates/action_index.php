@@ -15,7 +15,7 @@
             <th><?= t('Event name') ?></th>
             <th><?= t('Action name') ?></th>
             <th><?= t('Action parameters') ?></th>
-            <th><?= t('Actions') ?></th>
+            <th><?= t('Action') ?></th>
         </tr>
 
         <?php foreach ($actions as $action): ?>
@@ -26,8 +26,16 @@
                 <ul>
                 <?php foreach ($action['params'] as $param): ?>
                     <li>
-                        <?= Helper\escape($param['name']) ?> =
-                        <strong><?= Helper\escape($param['value']) ?></strong>
+                        <?= Helper\in_list($param['name'], $available_params) ?> =
+                        <strong>
+                        <?php if (Helper\contains($param['name'], 'column_id')): ?>
+                            <?= Helper\in_list($param['value'], $columns_list) ?>
+                        <?php elseif (Helper\contains($param['name'], 'user_id')): ?>
+                            <?= Helper\in_list($param['value'], $users_list) ?>
+                        <?php elseif (Helper\contains($param['name'], 'project_id')): ?>
+                            <?= Helper\in_list($param['value'], $projects_list) ?>
+                        <?php endif ?>
+                        </strong>
                     </li>
                 <?php endforeach ?>
                 </ul>

@@ -33,6 +33,10 @@ class Action extends Base
             'actions' => $this->action->getAllByProject($project['id']),
             'available_actions' => $this->action->getAvailableActions(),
             'available_events' => $this->action->getAvailableEvents(),
+            'available_params' => $this->action->getAllActionParameters(),
+            'columns_list' => $this->board->getColumnsList($project['id']),
+            'users_list' => $this->project->getUsersList($project['id'], false),
+            'projects_list' => $this->project->getList(false),
             'menu' => 'projects',
             'title' => t('Automatic actions')
         )));
@@ -60,8 +64,8 @@ class Action extends Base
             'values' => $values,
             'action_params' => $action->getActionRequiredParameters(),
             'columns_list' => $this->board->getColumnsList($project['id']),
-            'users_list' => $this->project->getUsersList($project['id']),
-            'projects_list' => $this->project->getList(),
+            'users_list' => $this->project->getUsersList($project['id'], false),
+            'projects_list' => $this->project->getList(false),
             'project' => $project,
             'menu' => 'projects',
             'title' => t('Automatic actions')
@@ -109,6 +113,8 @@ class Action extends Base
     {
         $this->response->html($this->template->layout('action_remove', array(
             'action' => $this->action->getById($this->request->getIntegerParam('action_id')),
+            'available_events' => $this->action->getAvailableEvents(),
+            'available_actions' => $this->action->getAvailableActions(),
             'menu' => 'projects',
             'title' => t('Remove an action')
         )));

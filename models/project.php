@@ -18,7 +18,7 @@ class Project extends Base
     const INACTIVE = 0;
 
     // Get a list of people that can by assigned for tasks
-    public function getUsersList($project_id)
+    public function getUsersList($project_id, $prepend = true)
     {
         $allowed_users = $this->getAllowedUsers($project_id);
         $userModel = new User($this->db, $this->event);
@@ -27,7 +27,11 @@ class Project extends Base
             $allowed_users = $userModel->getList();
         }
 
-        return array(t('Unassigned')) + $allowed_users;
+        if ($prepend) {
+            return array(t('Unassigned')) + $allowed_users;
+        }
+
+        return $allowed_users;
     }
 
     // Get a list of allowed people for a project
@@ -168,9 +172,13 @@ class Project extends Base
         return $projects;
     }
 
-    public function getList()
+    public function getList($prepend = true)
     {
-        return array(t('None')) + $this->db->table(self::TABLE)->asc('name')->listing('id', 'name');
+        if ($prepend) {
+            return array(t('None')) + $this->db->table(self::TABLE)->asc('name')->listing('id', 'name');
+        }
+
+        return $this->db->table(self::TABLE)->asc('name')->listing('id', 'name');
     }
 
     public function getAllByStatus($status)

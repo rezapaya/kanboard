@@ -15,8 +15,8 @@ class TaskAssignSpecificUser extends Base
     public function getActionRequiredParameters()
     {
         return array(
-            'column_id' => t('Destination column'),
-            'user_id' => t('User to assign'),
+            'column_id' => t('Column'),
+            'user_id' => t('Assignee'),
         );
     }
 
@@ -28,16 +28,18 @@ class TaskAssignSpecificUser extends Base
         );
     }
 
-    public function execute(array $data)
+    public function doAction(array $data)
     {
-        if ($this->isExecutable($data)) {
+        if ($data['column_id'] == $this->getParam('column_id')) {
 
-            if ($data['column_id'] == $this->getParam('column_id')) {
-                $this->task->update(array(
-                    'id' => $data['task_id'],
-                    'owner_id' => $this->getParam('user_id'),
-                ));
-            }
+            $this->task->update(array(
+                'id' => $data['task_id'],
+                'owner_id' => $this->getParam('user_id'),
+            ));
+
+            return true;
         }
+
+        return false;
     }
 }

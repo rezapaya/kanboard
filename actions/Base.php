@@ -7,7 +7,7 @@ abstract class Base implements \Core\Listener
     private $project_id = 0;
     private $params = array();
 
-    abstract public function execute(array $data);
+    abstract public function doAction(array $data);
     abstract public function getActionRequiredParameters();
     abstract public function getEventRequiredParameters();
 
@@ -44,14 +44,12 @@ abstract class Base implements \Core\Listener
         return true;
     }
 
-    public function getModel($name)
+    public function execute(array $data)
     {
-        if (! isset($this->models[$name])) {
-            require_once __DIR__.'/../models/'.strtolower($name).'.php';
-            $className = '\Model\\'.$name;
-            $this->models[$name] = new $className;
+        if ($this->isExecutable($data)) {
+            return $this->doAction($data);
         }
 
-        return $this->models[$name];
+        return false;
     }
 }

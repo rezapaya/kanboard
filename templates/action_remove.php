@@ -5,7 +5,7 @@
 
     <div class="confirm">
         <p class="alert alert-info">
-            <?= t('Do you really want to remove this action: "%s"?', $action['event_name'].'/'.$action['action_name']) ?>
+            <?= t('Do you really want to remove this action: "%s"?', Helper\in_list($action['event_name'], $available_events).'/'.Helper\in_list($action['action_name'], $available_actions)) ?>
         </p>
 
         <div class="form-actions">

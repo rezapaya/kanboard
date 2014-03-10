@@ -33,7 +33,7 @@ class Board extends Base
         return ! in_array(false, $results, true);
     }
 
-    // Create board with default columns => must executed inside a transaction
+    // Create board with default columns => must be executed inside a transaction
     public function create($project_id, array $columns)
     {
         $position = 0;

@@ -16,7 +16,7 @@ class TaskAssignCurrentUser extends Base
     public function getActionRequiredParameters()
     {
         return array(
-            'column_id' => t('Destination column'),
+            'column_id' => t('Column'),
         );
     }
 
@@ -28,16 +28,18 @@ class TaskAssignCurrentUser extends Base
         );
     }
 
-    public function execute(array $data)
+    public function doAction(array $data)
     {
-        if ($this->isExecutable($data)) {
+        if ($data['column_id'] == $this->getParam('column_id')) {
 
-            if ($data['column_id'] == $this->getParam('column_id')) {
-                $this->task->update(array(
-                    'id' => $data['task_id'],
-                    'owner_id' => $this->acl->getUserId(),
-                ));
-            }
+            $this->task->update(array(
+                'id' => $data['task_id'],
+                'owner_id' => $this->acl->getUserId(),
+            ));
+
+            return true;
         }
+
+        return false;
     }
 }

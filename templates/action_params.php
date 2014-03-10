@@ -16,13 +16,13 @@
 
         <?php foreach ($action_params as $param_name => $param_desc): ?>
 
-            <?php if ($param_name == 'column_id'): ?>
+            <?php if (Helper\contains($param_name, 'column_id')): ?>
                 <?= Helper\form_label($param_desc, $param_name) ?>
                 <?= Helper\form_select('params['.$param_name.']', $columns_list, $values) ?><br/>
-            <?php elseif ($param_name == 'user_id'): ?>
+            <?php elseif (Helper\contains($param_name, 'user_id')): ?>
                 <?= Helper\form_label($param_desc, $param_name) ?>
                 <?= Helper\form_select('params['.$param_name.']', $users_list, $values) ?><br/>
-            <?php elseif ($param_name == 'project_id'): ?>
+            <?php elseif (Helper\contains($param_name, 'project_id')): ?>
                 <?= Helper\form_label($param_desc, $param_name) ?>
                 <?= Helper\form_select('params['.$param_name.']', $projects_list, $values) ?><br/>
             <?php endif ?>

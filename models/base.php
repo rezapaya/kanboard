@@ -37,19 +37,4 @@ abstract class Base
 
         return hash('crc32b', $token);
     }
-
-    public function getTimestampFromDate($value, $format)
-    {
-        $date = \DateTime::createFromFormat($format, $value);
-
-        if ($date !== false) {
-            $errors = \DateTime::getLastErrors();
-            if ($errors['error_count'] === 0 && $errors['warning_count'] === 0) {
-                $timestamp = $date->getTimestamp();
-                return $timestamp > 0 ? $timestamp : 0;
-            }
-        }
-
-        return 0;
-    }
 }

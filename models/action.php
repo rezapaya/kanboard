@@ -24,7 +24,8 @@ class Action extends Base
         return array(
             'TaskClose' => t('Close the task'),
             'TaskAssignSpecificUser' => t('Assign the task to a specific user'),
-            'TaskAssignCurrentUser' => t('Assign a task to the person who make the action'),
+            'TaskAssignCurrentUser' => t('Assign the task to the person who does the action'),
+            'TaskDuplicateAnotherProject' => t('Duplicate the task to another project'),
         );
     }
 
@@ -39,6 +40,10 @@ class Action extends Base
         return array(
             Task::EVENT_MOVE_COLUMN => t('Move a task to another column'),
             Task::EVENT_MOVE_POSITION => t('Move a task to another position in the same column'),
+            Task::EVENT_UPDATE => t('Task modification'),
+            Task::EVENT_CREATE => t('Task creation'),
+            Task::EVENT_OPEN => t('Open a closed task'),
+            Task::EVENT_CLOSE => t('Closing a task'),
         );
     }
 
@@ -74,6 +79,25 @@ class Action extends Base
         }
 
         return $actions;
+    }
+
+    /**
+     * Get all required action parameters for all registered actions
+     *
+     * @access public
+     * @return array  All required parameters for all actions
+     */
+    public function getAllActionParameters()
+    {
+        $params = array();
+
+        foreach ($this->getAll() as $action) {
+
+            $action = $this->load($action['action_name'], $action['project_id']);
+            $params += $action->getActionRequiredParameters();
+        }
+
+        return $params;
     }
 
     /**
@@ -188,6 +212,10 @@ class Action extends Base
             case 'TaskAssignSpecificUser':
                 require_once __DIR__.'/../actions/task_assign_specific_user.php';
                 $className = '\Action\TaskAssignSpecificUser';
+                return new $className($project_id, new Task($this->db, $this->event));
+            case 'TaskDuplicateAnotherProject':
+                require_once __DIR__.'/../actions/task_duplicate_another_project.php';
+                $className = '\Action\TaskDuplicateAnotherProject';
                 return new $className($project_id, new Task($this->db, $this->event));
             default:
                 throw new \LogicException('Action not found: '.$name);
